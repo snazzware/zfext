@@ -1,0 +1,212 @@
+<script>
+	function <?=__ZFEXT_PREFIX;?>_grid_apply_filters_<?=$this->grid->getName();?>(opt) {
+		var overlay = $('#<?=$this->grid->getName();?>_overlay');
+		var table = $('#<?=$this->grid->getName();?>_table');
+
+		var loading = overlay.find('.loading').first();
+
+		loading.offset({top: Math.floor(table.height() / 2),left: Math.floor(table.width()/2)});
+
+		overlay.show();
+		overlay.offset(table.offset());
+		overlay.width(table.width());
+		overlay.height(table.height());				
+		
+		var parameters = new Object();
+		$(parameters).attr('<?=__ZFEXT_PREFIX;?>_grid_<?=$this->grid->getName();?>',1);
+
+        // pagination
+		if ((opt) && (opt.page)) {
+				$(parameters).attr('page',opt.page);
+				$(parameters).attr('pagesize',opt.pagesize);
+		} else {
+			$(parameters).attr('pagesize',<?=$this->grid->getPageSize();?>);
+		}
+
+	    // filtering  
+		$('#<?=$this->grid->getName();?>').find('.<?=__ZFEXT_PREFIX;?>-grid-filter').each(function() {
+			if ($(this).val().length>0) $(parameters).attr($(this).attr('name'),$(this).val());        	
+		});
+
+		// sorting      
+		$('#<?=$this->grid->getName();?>').find('.<?=__ZFEXT_PREFIX;?>-grid-sort').each(function() {
+			if ($(this).val().length>0) $(parameters).attr($(this).attr('name'),$(this).val());        	
+		});
+
+		// dispatch and update     
+		$.get(<?=$this->vars['ajaxUrl'];?>, parameters, function(data) {        	
+			$('#<?=$this->grid->getName();?>').html(data);
+			<?=__ZFEXT_PREFIX;?>_grid_autoheight_<?=$this->grid->getName();?>();
+		});
+	}
+
+	function <?=__ZFEXT_PREFIX;?>_grid_export_<?=$this->grid->getName();?>() {
+		var form = new jQuery('<form>',{
+			'action': <?=$this->vars['ajaxUrl'];?>,
+			'method': 'post',
+			'target': '_blank'
+		});
+		
+		form.append(jQuery('<input>',{
+			'name': '<?=__ZFEXT_PREFIX;?>_grid_<?=$this->grid->getName();?>',
+			'value': 1,
+			'type': 'hidden'
+		}));
+
+		// export format
+		form.append(jQuery('<input>',{
+			'name': 'export',
+			'value': 'csv',
+			'type': 'hidden'
+		}));
+
+		// filtering  
+		$('#<?=$this->grid->getName();?>').find('.<?=__ZFEXT_PREFIX;?>-grid-filter').each(function() {
+			if ($(this).val().length>0) {
+				form.append(jQuery('<input>',{
+					'name': $(this).attr('name'),
+					'value': $(this).val(),
+					'type': 'hidden'
+				}));
+			}        	
+		});
+
+		// sorting      
+		$('#<?=$this->grid->getName();?>').find('.<?=__ZFEXT_PREFIX;?>-grid-sort').each(function() {
+			if ($(this).val().length>0) {
+				form.append(jQuery('<input>',{
+					'name': $(this).attr('name'),
+					'value': $(this).val(),
+					'type': 'hidden'
+				}));
+			}       	
+		});
+
+		form.submit();				
+	}
+
+	function <?=__ZFEXT_PREFIX;?>_grid_customize_<?=$this->grid->getName();?>() {
+		var url = '<?=$this->grid->getCustomizeUrl();?>';
+		url += (/\?/.test(url) ? '&' : '?') + '<?=__ZFEXT_PREFIX;?>-crud-postpersist-redirect='+<?=$this->vars['ajaxUrl'];?>;
+		window.location = url;
+	}
+       
+	var <?=__ZFEXT_PREFIX;?>_grid_last_autoheight_time_<?=$this->grid->getName();?> = 0;
+		        
+	function <?=__ZFEXT_PREFIX;?>_grid_autoheight_<?=$this->grid->getName();?>() {
+		<? if ($this->grid->getAutoResize()==true) { ?>
+		var currentSeconds = (new Date()).getTime();
+        	
+		if (currentSeconds - <?=__ZFEXT_PREFIX;?>_grid_last_autoheight_time_<?=$this->grid->getName();?> > 100) {		
+			<?=__ZFEXT_PREFIX;?>_grid_last_autoheight_time_<?=$this->grid->getName();?> = currentSeconds;
+
+			var grid = $('#<?=$this->grid->getName();?>');
+			var parent = grid.parent();
+			var toprow = grid.find('.<?=__ZFEXT_PREFIX;?>-grid-data');
+
+        	if ((grid.length) && (parent.length) && (toprow.length)) {
+				var parentHeight = grid.parent().height();
+				var parentTop = grid.parent().offset().top;
+				
+	        	var myTop = grid.offset().top;
+	        	var rowTop = toprow.offset().top;
+	        	var myHeight = grid.height();
+	        	
+	        	var rowHeight = grid.find('.<?=__ZFEXT_PREFIX;?>-grid-data').height();
+	        	
+	        	if ((parentHeight + parentTop) > $(window).height()) { // make sure we don't extend beyond the bottom of the window
+	        		parentHeight = $(window).height() - parentTop;			        	
+	        	}
+	        	
+	        	var room = parentHeight - (rowTop - parentTop);
+	        	
+	        	var rows = Math.floor(room / rowHeight);
+
+	        	rows -= 2;
+	        	
+        	} else {
+            	var rows = 5;
+        	}
+	        	
+        	if (rows<5) rows = 5; // minimum of five rows
+
+        	if (Math.abs(rows-<?=$this->grid->getPageSize();?>)>1) {
+	        	if (rows != <?=$this->grid->getPageSize();?>) { // if we've calculated a different optimal value, reload		        				        	
+	        		<?=__ZFEXT_PREFIX;?>_grid_apply_filters_<?=$this->grid->getName();?>({page: <?=$this->vars['page'];?>, pagesize: rows});
+		        }
+        	}		        	
+        	
+		}
+		<? } ?>
+	}
+        
+	$('#<?=__ZFEXT_PREFIX;?>-content').bind('<?=__ZFEXT_PREFIX;?>-content-resize', function() {		        	
+		<?=__ZFEXT_PREFIX;?>_grid_autoheight_<?=$this->grid->getName();?>();
+	});
+        
+	function <?=__ZFEXT_PREFIX;?>_grid_clear_filters_<?=$this->grid->getName();?>() {	        
+		$('#<?=$this->grid->getName();?>').find('.<?=__ZFEXT_PREFIX;?>-grid-filter').each(function() {
+			$(this).val('');        	
+		});
+        
+		<?=__ZFEXT_PREFIX;?>_grid_apply_filters_<?=$this->grid->getName();?>();
+		<?=__ZFEXT_PREFIX;?>_grid_autoheight_<?=$this->grid->getName();?>();
+	}
+        
+	$(function() {
+		var colElement, colWidth, originalSize, newColWidth;
+		var nextElement, nextWidth, nextOriginalSize, nextNewWidth;
+        
+		//<?=__ZFEXT_PREFIX;?>_grid_autoheight_<?=$this->grid->getName();?>();
+
+        // the code below is based on an online tutorial for resizable table columns using jquery	
+		$('#<?=$this->grid->getName();?>_table th:not(:last-child)').resizable({
+			handles: 'e',
+			minWidth: 50,
+
+			// set correct COL element and original size
+			start: function(event, ui) {
+				var colIndex = ui.helper.index() + 1;
+				colElement = $('#<?=$this->grid->getName();?>_table').find('colgroup > col:nth-child(' + colIndex + ')');
+
+				nextElement = $('#<?=$this->grid->getName();?>_table').find('colgroup > col:nth-child(' + (colIndex+1) + ')');
+				
+				// get col width (faster than .width() on IE)
+				colWidth = parseInt(colElement.get(0).style.width, 10);
+				originalSize = ui.size.width;				  
+
+				nextWidth = parseInt(nextElement.get(0).style.width, 10);				
+			},
+				
+			// set COL width
+			resize: function(event, ui) {
+				var resizeDelta = ui.size.width - originalSize;
+
+				
+				newColWidth = colWidth + (colWidth * (resizeDelta/originalSize));
+				nextNewWidth = nextWidth - (colWidth * (resizeDelta/originalSize));
+
+				if (newColWidth<2) newColWidth = 2;
+				if (nextNewWidth<2) nextNewWidth = 2;
+
+				colElement.width(newColWidth+'%');
+				nextElement.width(nextNewWidth+'%');				
+				
+				// height must be set in order to prevent IE9 to set wrong height
+				$(this).css('height', 'auto');
+			},
+        		
+			stop: function(event, ui) {
+				var parameters = new Object();
+				$(parameters).attr('<?=__ZFEXT_PREFIX;?>_grid_<?=$this->grid->getName();?>',1);
+        
+				$(parameters).attr('colwidth_'+colElement.attr('name'),newColWidth);
+				$(parameters).attr('colwidth_'+nextElement.attr('name'),nextNewWidth);
+								
+				// send width to server
+				$.get(<?=$this->vars['ajaxUrl'];?>, parameters);
+			}
+		});
+	});
+		        
+</script>

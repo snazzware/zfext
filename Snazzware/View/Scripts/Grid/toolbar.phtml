@@ -1,0 +1,48 @@
+        
+<table class='<?=__ZFEXT_PREFIX;?>-grid-toolbar'>
+	<tr>
+        <td>
+        	<div class='<?=__ZFEXT_PREFIX;?>-grid-caption'><?=$this->grid->getCaption();?></div>        
+        </td>
+        <td class='<?=__ZFEXT_PREFIX;?>-grid-pagination-navigation' rowspan=2>
+        	<div class='<?=__ZFEXT_PREFIX;?>-grid-page-prev' onclick='<?=__ZFEXT_PREFIX;?>_grid_apply_filters_<?=$this->grid->getName();?>({page: 1, pagesize: <?=$this->grid->getPageSize();?> });'><img src='<?=ConfigUtils::get('pagination','icon_first_page');?>' />First Page</div>        	
+        	<div class='<?=__ZFEXT_PREFIX;?>-grid-page-prev' onclick='<?=__ZFEXT_PREFIX;?>_grid_apply_filters_<?=$this->grid->getName();?>({page: <?=$this->vars['prevpage'];?>, pagesize: <?=$this->grid->getPageSize();?> });'><img src='<?=ConfigUtils::get('pagination','icon_prev_page');?>' />Previous Page</div>        	
+        	<div class='<?=__ZFEXT_PREFIX;?>-grid-page-next' onclick='<?=__ZFEXT_PREFIX;?>_grid_apply_filters_<?=$this->grid->getName();?>({page: <?=$this->vars['nextpage'];?>, pagesize: <?=$this->grid->getPageSize();?> });'><img src='<?=ConfigUtils::get('pagination','icon_next_page');?>' />Next Page</div>        	
+        	<div class='<?=__ZFEXT_PREFIX;?>-grid-page-prev' onclick='<?=__ZFEXT_PREFIX;?>_grid_apply_filters_<?=$this->grid->getName();?>({page: <?=$this->vars['pages'];?>, pagesize: <?=$this->grid->getPageSize();?> });'><img src='<?=ConfigUtils::get('pagination','icon_last_page');?>' />Last Page</div>
+        </td>
+        <td colspan='<?=count($this->grid->getColumns());?>'>        
+        	<div class='ui-helper-clearfix' style='float: right'>
+        		
+        		<input class='fg-button ui-state-default  ui-priority-primary ui-corner-left' type=button onclick='javascript: <?=__ZFEXT_PREFIX;?>_grid_apply_filters_<?=$this->grid->getName();?>();' value='Apply Filters' /> 
+        		<? if ($this->grid->getCustomizable() || $this->grid->getExportable()) { ?>
+        			<input class='fg-button ui-state-default  ui-priority-primary ui-corner-none' type=button onclick='javascript: <?=__ZFEXT_PREFIX;?>_grid_clear_filters_<?=$this->grid->getName();?>();' value='Reset Filters' />
+        		<? } else { ?>
+        			<input class='fg-button ui-state-default  ui-priority-primary ui-corner-right' type=button onclick='javascript: <?=__ZFEXT_PREFIX;?>_grid_clear_filters_<?=$this->grid->getName();?>();' value='Reset Filters' />
+        		<? } ?>
+        		
+        		<? if ($this->grid->getCustomizable()) { ?>
+        			<input class='fg-button ui-state-default  ui-priority-primary ui-corner-none' type=button onclick='javascript: <?=__ZFEXT_PREFIX;?>_grid_customize_<?=$this->grid->getName();?>();' value='Customize' />
+        		<? } ?>
+        		
+        		<? if ($this->grid->getExportable()) { ?>
+        			<input class='fg-button ui-state-default  ui-priority-primary ui-corner-right' type=button onclick='javascript: <?=__ZFEXT_PREFIX;?>_grid_export_<?=$this->grid->getName();?>();' value='Export' />
+        		<? } ?>        		
+        	</div>
+        </td>
+	</tr>
+	<tr>
+    	<td class='<?=__ZFEXT_PREFIX;?>-grid-pagination-pages'>
+        	<div class='<?=__ZFEXT_PREFIX;?>-grid-page-count'> Page <?=$this->vars['page'];?> of <?=$this->vars['pages'];?></div>        
+        </td>
+        
+        <td class='<?=__ZFEXT_PREFIX;?>-grid-pagination-rows'>
+        	<div class='<?=__ZFEXT_PREFIX;?>-grid-row-count'>
+    	    	Row(s) <?=$this->vars['rowstart'];?> thru <?=$this->vars['rowend'];?> of <?=$this->vars['rowcount'];?> total. 
+	        	<? if (count($this->grid->getFilters())>0) { ?>
+        			<div class='<?=__ZFEXT_PREFIX;?>-grid-pagination-filtered'> (filtered) </div>
+        		<? } ?>
+        	</div>
+       	</td>
+	</tr>
+</table>
+

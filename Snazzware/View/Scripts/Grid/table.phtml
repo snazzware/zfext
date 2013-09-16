@@ -1,0 +1,73 @@
+<? 
+
+$rowClasses = ' '.__ZFEXT_PREFIX.'-grid-data ';
+
+if ($this->grid->getOnClickUrl() != null) {
+	$rowClasses .= ' clickable ';
+}
+
+?>
+
+
+
+<table class='<?=__ZFEXT_PREFIX;?>-grid' id='<?=$this->grid->getName();?>_table'>
+	
+	<colgroup>        
+    	<?
+	    	foreach ($this->grid->getColumns() as $column) { 
+				if ($column->getOption('display',true)==true) {
+	        		echo $column->renderCol($this->grid);
+	        	}
+	        }
+   		?>
+    </colgroup>
+
+    <thead>
+    	<tr>        
+        	<? 
+        		foreach ($this->grid->getColumns() as $column) {
+					if ($column->getOption('display',true)==true) {
+        				echo $column->renderHeader($this->grid);
+        			}
+        		}
+        	?>
+        </tr>
+	</thead>
+	        
+	<tbody>
+        <?
+        	$alt = '';
+        	foreach ($this->vars['rows'] as $row) {        	
+        		if ($this->grid->getOnClick() != null) {
+	        		$onClick = $this->grid->processTokens($this->grid->getOnClick(),$row);        		
+    	    	} else
+        		if ($this->grid->getOnClickUrl() != null) {        	
+        			$onClickUrl = $this->grid->processTokens($this->grid->getOnClickUrl(),$row);
+        			$onClick = 'window.location.href="'.$onClickUrl.'"';
+        		} else {
+        			$onClick = '';
+        		}
+        	
+        		$highlight = $this->grid->getRowHighlight($row);        		
+        		
+        		echo "<tr onclick='{$onClick}' class='{$rowClasses} {$alt} {$highlight}'>";        	
+	        	foreach ($this->grid->getColumns() as $column) {
+					if ($column->getOption('display',true)==true) {
+	        			echo $column->renderData($row);
+	        		}	        	
+	        	}
+	        	echo '</tr>';
+
+	        	if ($alt=='') $alt='alt';
+	        	else $alt = '';
+        	}
+        ?>
+        
+	</tbody>
+	
+</table>
+
+<div class='<?=__ZFEXT_PREFIX;?>-grid-overlay' id='<?=$this->grid->getName();?>_overlay'>
+	<img src='<?=ConfigUtils::get('global','image_loading');?>' class='loading' />
+</div>
+

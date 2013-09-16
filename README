@@ -1,0 +1,57 @@
+These are my own personal Zend Framework 1.x extensions, and are NOT INTENDED FOR
+PUBLIC CONSUMPTION. USE AT YOUR OWN RISK. THIS IS A WORK IN PROGRESS, METHOD SIGNATURES
+MAY CHANGE WITHOUT NOTICE, INTERFACES HAVE NOT BEEN FORMALIZED.
+
+A note about php 5.2 vs 5.3 - Some aspects of this framework extension would be better
+realized by utilizing features not found in php 5.2 (e.g. overriding static methods,
+namespaces, etc). Since this framework is currently targetting Zend Framework 1.x, and
+several of the projects for which it was build have (sadly) not made the switch to php 5.3,
+I have avoided using any php 5.3-specific functionality.
+
+This framework roughly follows the same basic layout as the Zend Framework 1.x, which it is
+an extension of. Controllers are found in the Controller directory, Forms in the Form directory,
+etc. When there is a non-abstract version of a class available, it is generally found in the
+parent directory, with any "packaged" subclasses, components, etc. located in subdirectories.
+For example, my form class, Snazzware_Form, is located in Snazzware/Form.php, while the extended
+versions of it are found under Snazzware/Form/, e.g. Snazzware_Form_Login is in
+Snazzware/Form/Login.php, etc.
+
+It is likely very apparent that at a certain point in the development of this framework
+I started making the conceptual shift from accessor-based configuration (e.g.
+$object->setCaption('Hello, world!') vs. $object->setOption('caption','Hello, world!')). I
+am still on the fence about exactly where I prefer one form vs. the other, however for building
+up UI elements (grids, forms, other widgets) I have found array-based configuration to be
+a lot more straightforward to deal with, espescially when layering multiple sets of options.
+For example, consider the constructor for Snazzware_Widget_Paginated_Grid, which adds a few
+extra controls on to the set already provided by Snazzware_Widget_Paginated. Further consider
+the possibile addition of other controls, or other options entirely (or additional event
+handlers on existing controls, etc, etc) by further, application-specific subclasses, and
+you can see how this becomes both a lot more readable, and a lot less verbose.
+
+In some places, for compatability with existing code based on this framework, I continue to
+provide accessor methods for certain options, but these are generaly backed by calls to
+the ubiquitous getOption/setOption methods. 
+
+The various array keys usable when setting options via array are documented in the comments
+portion of the corresponding methods' doc blocks, since an unfortunate downside here is that
+they are not accessible to IDE auto-completion. Trade-offs!
+
+The Bootstrap.php file is intended to be extended by applications which utilize this framework,
+and sets up a lot of useful things. This framework is not as "pick and choose" as ZF, in that
+a lot of things call ConfigUtils, EntityUtils, SecurityUtils, etc. When I was still targetting
+PHP 5.3, these aliases were set up via "uses" statements, but now live at the top of
+Bootstrap.php.
+
+There is a constant defined in Bootstrap.php, which will likely be moved elsewhere at some
+point. This constant, __ZFEXT_PREFIX, is a unique prefix which is used for a lot of the generated
+html and javascript throughough the various decorators and view helpers, to avoid name
+collisions. It is 'snazzware' by default, but since this literal will appear all over the generated
+HTML output, I've made it easily configurable for those who do not want to leak that sort
+of detail. Feel free to change it to 'yourcompany' or whatever, of course, of course.
+
+
+
+
+
+
+

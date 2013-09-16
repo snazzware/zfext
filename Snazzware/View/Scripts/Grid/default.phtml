@@ -1,0 +1,35 @@
+<?
+
+$zfext = __ZFEXT_PREFIX; 
+
+if ($this->vars['renderContainer']) { 
+	echo "<div class='{$zfext}-grid' id='{$this->grid->getName()}'>";
+} 
+
+echo $this->render('Grid/scripting.phtml');
+echo $this->render('Grid/toolbar.phtml');
+echo $this->render('Grid/table.phtml');
+
+if ($this->vars['renderContainer']) {
+	echo "</div>";
+		
+	if ($this->grid->getMouseWheel()==true) {
+		echo "	
+			<script>				
+				$(function() {
+					{$zfext}_grid_autoheight_<?=$this->grid->getName();?>();
+				    	
+					$('#<?=$this->grid->getName();?>').bind('mousewheel',function(event, delta) {	        	
+						if (event.wheelDelta>0) {
+							$('#{$this->grid->getName()}').find('.{$zfext}-grid-page-prev').click();
+						} else {
+							$('#{$this->grid->getName()}').find('.{$zfext}-grid-page-next').click();
+						}
+						return false;
+					});
+				        
+				});				
+			</script>	
+		";
+	}
+}
